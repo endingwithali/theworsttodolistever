@@ -27,7 +27,9 @@ curl -X PUT 0.0.0.0:8080/task/update -H "Content-Type: application/json" -d '{"t
 
 curl -X GET 0.0.0.0:8080/task/get
 
+curl -X PUT 0.0.0.0:8080/task/toggle -H "Content-Type: application/json" -d '{"taskID":"1926be6a-ae62-43ef-a805-94dfd1efb468"}'
 
+curl -X PUT 0.0.0.0:8080/task/toggle -H "Content-Type: application/json" -d '{"taskID":"ab010555-f156-4ba2-95e6-74353d1da8f4"}'
 
 
 Gin body: fmt.Println(c.Request.Body)
@@ -60,7 +62,7 @@ Create a new db
 Connecting to the db
 ` $ psql <dbname>`
 
-
+How to create triggers in postgres that will update time and date automatically on column based on update function being executed - https://www.reddit.com/r/PostgreSQL/comments/10shxej/how_to_update_a_timestamp_automatically/ 
 
 
 # Gin Library Notes:
@@ -96,3 +98,17 @@ How to pass values to Gin Router Functions  - https://github.com/gin-gonic/gin/i
         albums = append(albums, alb)
     }
 ```
+
+
+
+# Brainstorming Fun
+
+## Name Suggestions
+
+- Task manifesto
+- Communistodo
+- SociaLIST
+- Commulist
+- 
+
+can we make this as a twitch chat interactive experience (utilize twitch moderation to moderate the inputs)
