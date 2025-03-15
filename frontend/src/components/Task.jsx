@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import PropTypes from 'prop-types';
 import dayjs from "dayjs";
 
 function Task({ uuid, createDate, updateDate, creator, status, text }) {
@@ -24,23 +25,43 @@ function Task({ uuid, createDate, updateDate, creator, status, text }) {
       .catch((error) => console.log(error));
   };
 
+
   //https://developer.mozilla.org/en-US/docs/Web/HTML/Element/details
 
   return (
     <div className="flex gap-4 p-4">
-      <input className="font-lekton" type="checkbox" checked={checkedState} onChange={handleChange} />
+      <input
+        className="font-lekton"
+        type="checkbox"
+        checked={checkedState}
+        onChange={handleChange}
+      />
       <details>
         <summary className="font-lekton">{text}</summary>
 
-        <p className="font-lekton">{
-          dayjs(updateDateState).format('YYYY-MM-DD HH:mm').toString()
-        }</p>
-        <p className="font-lekton">{
-                  dayjs(createDate).format('YYYY-MM-DD HH:mm').toString()
-        }</p>
+        <p className="font-lekton">
+          {dayjs(updateDateState).format("YYYY-MM-DD HH:mm").toString()}
+        </p>
+        <p className="font-lekton">
+          {dayjs(createDate).format("YYYY-MM-DD HH:mm").toString()}
+        </p>
         <p className="font-lekton">{creator}</p>
       </details>
     </div>
   );
 }
+
+Task.propTypes = {
+  uuid: PropTypes.string.isRequired,
+  createDate:  PropTypes.string.isRequired,
+  updateDate: PropTypes.string.isRequired, 
+  creator: PropTypes.string.isRequired, 
+  status: PropTypes.string.isRequired,
+  text: PropTypes.string.isRequired,
+};
+
+
+
 export default Task;
+
+

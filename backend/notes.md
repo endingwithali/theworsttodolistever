@@ -10,6 +10,7 @@ go run main
 # POSTGRES STRUCTURE
 DB Name: commulistDB 
 
+```
 CREATE TABLE tasks (
     id UUID NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
     string text not null,
@@ -18,8 +19,27 @@ CREATE TABLE tasks (
     creator uuid, 
     status boolean SET DEFAULT false
 );
+```
 
+## Rules:
+```
+CREATE RULE task_date_update AS ON UPDATE TO tasks
+    WHERE NEW.status <> OLD.status
+    DO INSERT INTO shoelace_log VALUES (
+                                    NEW.sl_name,
+                                    NEW.sl_avail,
+                                    current_user,
+                                    current_timestamp
+                                );
+```
+
+
+
+# Testing Calls:
 curl -X POST 0.0.0.0:8080/task/create -H "Content-Type: application/x-www-form-urlencoded" -d "task='TASK STRING'"
+
+curl -X POST 0.0.0.0:8080/task/create -H "Content-Type: application/json" -d '{"task":"TESTTASK"}'
+
 
 curl -X DELETE 0.0.0.0:8080/task/delete -H "Content-Type: application/json" -d '{"taskID":"9615cce1-f377-48f0-9cf5-9ccb731764fb"}'
 
@@ -30,6 +50,10 @@ curl -X GET 0.0.0.0:8080/task/get
 curl -X PUT 0.0.0.0:8080/task/toggle -H "Content-Type: application/json" -d '{"taskID":"1926be6a-ae62-43ef-a805-94dfd1efb468"}'
 
 curl -X PUT 0.0.0.0:8080/task/toggle -H "Content-Type: application/json" -d '{"taskID":"ab010555-f156-4ba2-95e6-74353d1da8f4"}'
+
+ curl -X GET "0.0.0.0:8080/task/get?taskID=164ba7fa-5e46-4551-9a4a-d7aa18fa0cdd"
+
+** must put get query in quotes because ? is a shell escape character
 
 
 Gin body: fmt.Println(c.Request.Body)
@@ -98,6 +122,10 @@ How to pass values to Gin Router Functions  - https://github.com/gin-gonic/gin/i
         albums = append(albums, alb)
     }
 ```
+
+# PSQL 
+
+
 
 
 

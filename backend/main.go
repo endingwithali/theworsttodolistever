@@ -27,7 +27,7 @@ func main() {
 
 	corsPolicy := cors.New(cors.Config{
 		AllowOrigins: []string{"*"},
-		AllowMethods: []string{"GET", "PATCH", "PUT"},
+		AllowMethods: []string{"GET", "PATCH", "PUT", "POST"},
 		AllowHeaders: []string{"Origin", "Content-Type"},
 		// ExposeHeaders:    []string{"Content-Length"},
 		// AllowCredentials: true,
@@ -74,18 +74,44 @@ type CreateTaskStruct struct {
 	Task string `form:"task"`
 }
 
+type CreateTaskReturnStruct struct {
+	Uuid       uuid.UUID `json:"uuid"`
+	Text       string    `json:"text"`
+	CreateDate time.Time `json:"createDate"`
+	UpdateDate time.Time `json:"updateDate"`
+	Creator    uuid.UUID `json:"creator"`
+	Status     bool      `json:"status"`
+}
+
 func (env *RouterEnv) createTask(c *gin.Context) {
+
 	fmt.Println("Create New To DO Task")
 	var input CreateTaskStruct
-	c.Bind(&input)
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(400, gin.H{"error": "Invalid request format"})
+		return
+	}
 	fmt.Println(input)
-	sqlStatement := fmt.Sprintf("INSERT INTO tasks (string) VALUES (%s);", input.Task)
-	_, err := env.db.Exec(sqlStatement)
+	sqlStatement := fmt.Sprintf("INSERT INTO tasks (string) VALUES ('%s') RETURNING *;", input.Task)
+
+	fmt.Println(sqlStatement)
+
+	rows, err := env.db.Query(sqlStatement)
 	if err != nil {
 		log.Fatalln(err)
-		c.JSON(500, "An error occured")
+		c.JSON(500, "An error creating new task occured")
 	}
-	c.JSON(200, nil)
+	defer rows.Close()
+
+	var task CreateTaskReturnStruct
+
+	for rows.Next() {
+		rows.Scan(&task.Uuid, &task.Text, &task.CreateDate, &task.UpdateDate, &task.Creator, &task.Status)
+	}
+
+	fmt.Println(task)
+	c.JSON(200, task)
+
 }
 
 type GetTaskOutputStruct struct {
@@ -98,24 +124,47 @@ type GetTaskOutputStruct struct {
 }
 
 func (env *RouterEnv) getTasks(c *gin.Context) {
-	fmt.Println("We are getting all the tasks")
-	rows, err := env.db.Query("SELECT * FROM tasks;")
-	if err != nil {
-		log.Fatalln(err)
-		c.JSON(500, "An error occured")
+	// gets one specific task
+	taskID := c.Query("taskID")
+	if taskID != "" {
+		fmt.Println("We are getting just one task")
+		sqlStatement := fmt.Sprintf("SELECT * FROM tasks where id='%s';", taskID)
+		rows, err := env.db.Query(sqlStatement)
+		if err != nil {
+			log.Fatalln(err)
+			c.JSON(500, "An error occured")
+		}
+		defer rows.Close()
+
+		var task GetTaskOutputStruct
+
+		for rows.Next() {
+			rows.Scan(&task.Uuid, &task.Text, &task.CreateDate, &task.UpdateDate, &task.Creator, &task.Status)
+		}
+
+		fmt.Println(task)
+		c.JSON(200, task)
+	} else {
+		// Gets all existing tasks
+		fmt.Println("We are getting all the tasks")
+		rows, err := env.db.Query("SELECT * FROM tasks;")
+		if err != nil {
+			log.Fatalln(err)
+			c.JSON(500, "An error occured")
+		}
+		defer rows.Close()
+
+		var allTasks []GetTaskOutputStruct
+		var task GetTaskOutputStruct
+
+		for rows.Next() {
+			rows.Scan(&task.Uuid, &task.Text, &task.CreateDate, &task.UpdateDate, &task.Creator, &task.Status)
+			allTasks = append(allTasks, task)
+		}
+
+		fmt.Println(allTasks)
+		c.JSON(200, allTasks)
 	}
-	defer rows.Close()
-
-	var allTasks []GetTaskOutputStruct
-	var task GetTaskOutputStruct
-
-	for rows.Next() {
-		rows.Scan(&task.Uuid, &task.Text, &task.CreateDate, &task.UpdateDate, &task.Creator, &task.Status)
-		allTasks = append(allTasks, task)
-	}
-
-	fmt.Println(allTasks)
-	c.JSON(200, allTasks)
 }
 
 type DeleteTaskStruct struct {
