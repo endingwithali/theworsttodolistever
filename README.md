@@ -21,7 +21,7 @@ DB: POSTGRES
 ```
 ## Month 1 and 2
 To Do
-- [ ] Create a front end
+- [x] Create a front end
 - [x] Create todo
 - [x] Check off status of to do
 - [x] read to do
@@ -35,12 +35,13 @@ To Do
         - [x] on return create elements in body
 
     - [x] create new TODO and persist to backend
-    - [ ] delete TODO entries and persist to backend
+    - [x] delete TODO entries and persist to backend
     - [x] toggle TODO entries and persist to backend
-    - [ ] update TODO entries and persist to backend 
+    - [x] update TODO entries and persist to backend 
 
 ## Month 3 
 - [ ] Do basic security checks
+- [ ] Style frontend
 Create login system - still one big list
 - [ ] Oauth2 to Twitch & Google
     - [ ] Create Login on frontend 
