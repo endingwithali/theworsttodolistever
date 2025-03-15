@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
@@ -24,8 +25,21 @@ func main() {
 	}
 	fmt.Println(db)
 
+	corsPolicy := cors.New(cors.Config{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{"GET", "PATCH", "PUT"},
+		AllowHeaders: []string{"Origin", "Content-Type"},
+		// ExposeHeaders:    []string{"Content-Length"},
+		// AllowCredentials: true,
+		// AllowOriginFunc: func(origin string) bool {
+		// 	return origin == "https://github.com"
+		// },
+		MaxAge: 12 * time.Hour,
+	})
+
 	router := gin.Default()
 
+	router.Use(corsPolicy)
 	routerFunctions := &RouterEnv{
 		db: db,
 	}
@@ -153,6 +167,11 @@ type ToggleTaskStruct struct {
 	Uuid string `json:"taskID"`
 }
 
+type ToggleTaskResponseStruct struct {
+	Status     bool      `json:"status"`
+	UpdateDate time.Time `json:"updateDate"`
+}
+
 func (env *RouterEnv) toggleTaskStatus(c *gin.Context) {
 	fmt.Println("Toggle Tasks")
 	var input ToggleTaskStruct
@@ -161,15 +180,27 @@ func (env *RouterEnv) toggleTaskStatus(c *gin.Context) {
 		return
 	}
 
-	sqlSatement := fmt.Sprintf("UPDATE tasks SET status = NOT status WHERE id='%s';", input.Uuid)
-	_, err := env.db.Exec(sqlSatement)
+	_, err := env.db.Exec("UPDATE tasks SET status = NOT status WHERE id = $1;", input.Uuid)
 	if err != nil {
 		log.Fatalln(err)
 		c.JSON(500, "An error occured")
 	}
 
+	row, err := env.db.Query("SELECT status, updateDate FROM tasks WHERE id = $1;", input.Uuid)
+	if err != nil {
+		log.Fatalln(err)
+		c.JSON(500, "An error occured")
+	}
+	defer row.Close()
+	var task ToggleTaskResponseStruct
+	row.Next()
+	row.Scan(&task.Status, &task.UpdateDate)
+
+	fmt.Println(task)
+
 	c.JSON(200, gin.H{
-		"status": true,
+		"taskStatus": task.Status,
+		"updateDate": task.UpdateDate,
 	})
 
 }

@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+@theme {
+    --font-atkinson: "Atkinson Hyperlegible Mono", "serif"; 
+    --font-lekton: "Lekton", "sans-serif";
+}

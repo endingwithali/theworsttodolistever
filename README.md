@@ -21,13 +21,23 @@ DB: POSTGRES
 ```
 ## Month 1 and 2
 To Do
-- [ ]  Create a front end
+- [ ] Create a front end
 - [x] Create todo
 - [x] Check off status of to do
 - [x] read to do
 - [x] delete do tos
 - [x] show dates of creation
 
+
+- Create A Front End
+    - [ ] populate current list of TODOs from backend ONLOAD
+        - [x] on page load call external API
+        - [ ] on return create elements in body
+
+    - [ ] create new TODO and persist to backend
+    - [ ] delete TODO entries and persist to backend
+    - [ ] toggle TODO entries and persist to backend
+    - [ ] update TODO entries and persist to backend 
 
 ## Month 3 
 Create login system - still one big list
