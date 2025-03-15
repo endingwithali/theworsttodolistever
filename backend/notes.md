@@ -22,17 +22,27 @@ CREATE TABLE tasks (
 ```
 
 ## Rules:
-```
-CREATE RULE task_date_update AS ON UPDATE TO tasks
-    WHERE NEW.status <> OLD.status
-    DO INSERT INTO shoelace_log VALUES (
-                                    NEW.sl_name,
-                                    NEW.sl_avail,
-                                    current_user,
-                                    current_timestamp
-                                );
-```
 
+
+
+```
+CREATE  FUNCTION update_task_time()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updateDate = now();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+```
+```
+CREATE TRIGGER update_task_row
+    BEFORE UPDATE
+    ON
+        tasks
+    FOR EACH ROW
+EXECUTE PROCEDURE update_task_time();
+```
+credit: https://aviyadav231.medium.com/automatically-updating-a-timestamp-column-in-postgresql-using-triggers-98766e3b47a0
 
 
 # Testing Calls:
@@ -49,11 +59,30 @@ curl -X GET 0.0.0.0:8080/task/get
 
 curl -X PUT 0.0.0.0:8080/task/toggle -H "Content-Type: application/json" -d '{"taskID":"1926be6a-ae62-43ef-a805-94dfd1efb468"}'
 
+ curl -X GET "0.0.0.0:8080/task/get?taskID=1926be6a-ae62-43ef-a805-94dfd1efb468"
+
+
 curl -X PUT 0.0.0.0:8080/task/toggle -H "Content-Type: application/json" -d '{"taskID":"ab010555-f156-4ba2-95e6-74353d1da8f4"}'
 
  curl -X GET "0.0.0.0:8080/task/get?taskID=164ba7fa-5e46-4551-9a4a-d7aa18fa0cdd"
 
+
+
+ curl -X GET "0.0.0.0:8080/task/get?taskID=e32ec77e-931a-4694-a38f-9a407614dd30"
+{"uuid":"e32ec77e-931a-4694-a38f-9a407614dd30","text":"asdfasfds","createDate":"2025-03-15T15:51:38.182005Z","updateDate":"2025-03-15T15:51:38.182005Z","creator":"00000000-0000-0000-0000-000000000000","status":false}%
+
+{"taskStatus":true,"updateDate":"2025-03-15T17:53:10.719678Z"}%                                                                        ~|⇒
+
+curl -X PUT 0.0.0.0:8080/task/toggle -H "Content-Type: application/json" -d '{"taskID":"e32ec77e-931a-4694-a38f-9a407614dd30"}'
+
+
+
+
+
 ** must put get query in quotes because ? is a shell escape character
+
+
+
 
 
 Gin body: fmt.Println(c.Request.Body)
@@ -140,3 +169,13 @@ How to pass values to Gin Router Functions  - https://github.com/gin-gonic/gin/i
 - 
 
 can we make this as a twitch chat interactive experience (utilize twitch moderation to moderate the inputs)
+
+
+
+
+
+
+
+
+
+[{"uuid":"e32ec77e-931a-4694-a38f-9a407614dd30","text":"asdfasfds","createDate":"2025-03-15T15:51:38.182005Z","updateDate":"2025-03-15T15:51:38.182005Z","creator":"00000000-0000-0000-0000-000000000000","status":false},{"uuid":"500ef0cc-7231-4704-bf69-22a49efba090","text":"asdfasdf","createDate":"2025-03-15T15:51:39.298887Z","updateDate":"2025-03-15T15:51:39.298887Z","creator":"00000000-0000-0000-0000-000000000000","status":false},{"uuid":"42b2ef9d-1376-4d5b-9390-6696ff124d9d","text":"asfdasdf","createDate":"2025-03-15T15:51:40.348678Z","updateDate":"2025-03-15T15:51:40.348678Z","creator":"00000000-0000-0000-0000-000000000000","status":false},{"uuid":"c8f580d6-ca0f-45d1-bdb6-d4170ffdd4ed","text":"asdfasdf","createDate":"2025-03-15T15:51:41.41705Z","updateDate":"2025-03-15T15:51:41.41705Z","creator":"00000000-0000-0000-0000-000000000000","status":false},{"uuid":"11924fd2-e3d4-4f61-9a9d-094cac4499d0","text":"TESTTASK","createDate":"2025-03-15T15:50:59.453207Z","updateDate":"2025-03-15T15:50:59.453207Z","creator":"00000000-0000-0000-0000-000000000000","status":false},{"uuid":"79a57a88-0adf-4fea-a9c7-cbb39f06365c","text":"sdfasdfa","createDate":"2025-03-15T15:51:35.986336Z","updateDate":"2025-03-15T15:51:35.986336Z","creator":"00000000-0000-0000-0000-000000000000","status":false},{"uuid":"1ae93156-9f86-4cdb-a18e-8b0266f955ce","text":"asdfasdf","createDate":"2025-03-15T15:51:34.799498Z","updateDate":"2025-03-15T15:51:34.799498Z","creator":"00000000-0000-0000-0000-000000000000","status":false},{"uuid":"64a6d028-8fbd-4490-a555-e16c7f0852f1","text":"asdfasdf","createDate":"2025-03-15T15:51:33.666756Z","updateDate":"2025-03-15T15:51:33.666756Z","creator":"00000000-0000-0000-0000-000000000000","status":false},{"uuid":"7c7858bf-85f1-4515-ba40-99760dca6085","text":"asdfasdf","createDate":"2025-03-15T15:51:32.302446Z","updateDate":"2025-03-15T15:51:32.302446Z","creator":"00000000-0000-0000-0000-000000000000","status":false},{"uuid":"534f9b72-3a1f-49ef-b513-c80e76af6147","text":"adsfasdf","createDate":"2025-03-15T15:51:30.902021Z","updateDate":"2025-03-15T15:51:30.902021Z","creator":"00000000-0000-0000-0000-000000000000","status":false},{"uuid":"66e67511-cb42-4ad4-8b8f-b9eef7dac47b","text":"asdfasdf","createDate":"2025-03-15T15:51:28.838781Z","updateDate":"2025-03-15T15:51:28.838781Z","creator":"00000000-0000-0000-0000-000000000000","status":false},{"uuid":"eeac4063-502a-4e1e-b2dd-4293336dc363","text":"TASK STRING","createDate":"2025-03-15T15:37:58.57097Z","updateDate":"2025-03-15T15:37:58.57097Z","creator":"00000000-0000-0000-0000-000000000000","status":false},{"uuid":"9f88916f-828b-47c4-ab48-bd6f5c9ae3e6","text":"asdfasdf","createDate":"2025-03-15T15:51:36.982075Z","updateDate":"2025-03-15T15:51:36.982075Z","creator":"00000000-0000-0000-0000-000000000000","status":false},{"uuid":"d45fa900-95f3-417e-a4d5-60e35d11dc85","text":"nenwienweinew","createDate":"2025-03-15T15:11:55.597168Z","updateDate":"2025-03-15T15:11:55.597168Z","creator":"00000000-0000-0000-0000-000000000000","status":false},{"uuid":"164ba7fa-5e46-4551-9a4a-d7aa18fa0cdd","text":"task 2","createDate":"2025-01-31T10:10:21.11597Z","updateDate":"2025-01-31T10:10:21.11597Z","creator":"00000000-0000-0000-0000-000000000000","status":false},{"uuid":"ab010555-f156-4ba2-95e6-74353d1da8f4","text":"task 1","createDate":"2025-01-31T10:10:16.089964Z","updateDate":"2025-01-31T10:10:16.089964Z","creator":"00000000-0000-0000-0000-000000000000","status":false},{"uuid":"eca3d954-d865-4ff3-8b77-f48f94da8180","text":"task 3","createDate":"2025-01-31T10:10:26.559895Z","updateDate":"2025-01-31T10:10:26.559895Z","creator":"00000000-0000-0000-0000-000000000000","status":false}]%

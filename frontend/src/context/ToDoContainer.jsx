@@ -38,8 +38,9 @@ const tasksDispatch = (tasks, action) => {
     case "ADD": {
       return [action.newTask, ...tasks]
     }
-    case "deleted": {
-      break;
+    case "DELETE": {
+      console.log("delete dispatcher")
+      return tasks.filter(t => t.uuid !== action.taskID);
     }
     case "LOAD": {
       return action.tasks;

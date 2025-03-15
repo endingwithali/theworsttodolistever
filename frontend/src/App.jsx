@@ -26,7 +26,7 @@ function App() {
           <h1 className="font-atkinson text-lg">{title}</h1>
         </div>
         <div id="add-container">
-          <Add />
+        <Add />
         </div>
         <TaskList />
       </div>

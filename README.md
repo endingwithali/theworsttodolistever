@@ -30,18 +30,21 @@ To Do
 
 
 - Create A Front End
-    - [ ] populate current list of TODOs from backend ONLOAD
+    - [s] populate current list of TODOs from backend ONLOAD
         - [x] on page load call external API
-        - [ ] on return create elements in body
+        - [x] on return create elements in body
 
-    - [ ] create new TODO and persist to backend
+    - [x] create new TODO and persist to backend
     - [ ] delete TODO entries and persist to backend
-    - [ ] toggle TODO entries and persist to backend
+    - [x] toggle TODO entries and persist to backend
     - [ ] update TODO entries and persist to backend 
 
 ## Month 3 
+- [ ] Do basic security checks
 Create login system - still one big list
 - [ ] Oauth2 to Twitch & Google
+    - [ ] Create Login on frontend 
+    - [ ] Create User management on backend 
 
 ## Month 4
 - [ ] Create private to do list entires

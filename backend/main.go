@@ -27,7 +27,7 @@ func main() {
 
 	corsPolicy := cors.New(cors.Config{
 		AllowOrigins: []string{"*"},
-		AllowMethods: []string{"GET", "PATCH", "PUT", "POST"},
+		AllowMethods: []string{"GET", "PATCH", "PUT", "POST", "DELETE"},
 		AllowHeaders: []string{"Origin", "Content-Type"},
 		// ExposeHeaders:    []string{"Content-Length"},
 		// AllowCredentials: true,
@@ -200,7 +200,7 @@ func (env *RouterEnv) updateTask(c *gin.Context) {
 		return
 	}
 
-	sqlSatement := fmt.Sprintf("UPDATE tasks SET string='%s', updateDate='%s' WHERE id='%s';", input.NewTaskString, time.Now(), input.Uuid)
+	sqlSatement := fmt.Sprintf("UPDATE tasks SET string='%s' WHERE id='%s';", input.NewTaskString, input.Uuid)
 	_, err := env.db.Exec(sqlSatement)
 	if err != nil {
 		log.Fatalln(err)
@@ -229,17 +229,12 @@ func (env *RouterEnv) toggleTaskStatus(c *gin.Context) {
 		return
 	}
 
-	_, err := env.db.Exec("UPDATE tasks SET status = NOT status WHERE id = $1;", input.Uuid)
+	row, err := env.db.Query("UPDATE tasks SET status = NOT status WHERE id = $1 RETURNING status, updateDate;", input.Uuid)
 	if err != nil {
 		log.Fatalln(err)
 		c.JSON(500, "An error occured")
 	}
 
-	row, err := env.db.Query("SELECT status, updateDate FROM tasks WHERE id = $1;", input.Uuid)
-	if err != nil {
-		log.Fatalln(err)
-		c.JSON(500, "An error occured")
-	}
 	defer row.Close()
 	var task ToggleTaskResponseStruct
 	row.Next()
