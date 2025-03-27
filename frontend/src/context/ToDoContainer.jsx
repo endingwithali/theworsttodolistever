@@ -9,7 +9,7 @@ export function ToDoContainer({ children }) {
   useEffect(() => {
     getAllTasks().then(
       (data) => {
-        if (data.length === 0) {
+        if (data ==  null || data.length === 0) { // (data?.length===0)
           dispatch({});
         }
         dispatch({

@@ -91,12 +91,8 @@ func (env *RouterEnv) createTask(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "Invalid request format"})
 		return
 	}
-	fmt.Println(input)
-	sqlStatement := fmt.Sprintf("INSERT INTO tasks (string) VALUES ('%s') RETURNING *;", input.Task)
 
-	fmt.Println(sqlStatement)
-
-	rows, err := env.db.Query(sqlStatement)
+	rows, err := env.db.Query("INSERT INTO tasks (string) VALUES ($1) RETURNING *;", input.Task)
 	if err != nil {
 		log.Fatalln(err)
 		c.JSON(500, "An error creating new task occured")
@@ -128,8 +124,7 @@ func (env *RouterEnv) getTasks(c *gin.Context) {
 	taskID := c.Query("taskID")
 	if taskID != "" {
 		fmt.Println("We are getting just one task")
-		sqlStatement := fmt.Sprintf("SELECT * FROM tasks where id='%s';", taskID)
-		rows, err := env.db.Query(sqlStatement)
+		rows, err := env.db.Query("SELECT * FROM tasks where id=$1;", taskID)
 		if err != nil {
 			log.Fatalln(err)
 			c.JSON(500, "An error occured")
@@ -178,8 +173,7 @@ func (env *RouterEnv) deleteTask(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "Invalid request format"})
 		return
 	}
-	sqlStatement := fmt.Sprintf("DELETE FROM tasks where id='%s';", input.Uuid)
-	_, err := env.db.Exec(sqlStatement)
+	_, err := env.db.Exec("DELETE FROM tasks where id=$1;", input.Uuid)
 	if err != nil {
 		log.Fatalln(err)
 		c.JSON(500, "An error occured")
@@ -200,8 +194,7 @@ func (env *RouterEnv) updateTask(c *gin.Context) {
 		return
 	}
 
-	sqlSatement := fmt.Sprintf("UPDATE tasks SET string='%s' WHERE id='%s';", input.NewTaskString, input.Uuid)
-	_, err := env.db.Exec(sqlSatement)
+	_, err := env.db.Exec("UPDATE tasks SET string = $1 WHERE id= $2;", input.NewTaskString, input.Uuid)
 	if err != nil {
 		log.Fatalln(err)
 		c.JSON(500, "An error occured")

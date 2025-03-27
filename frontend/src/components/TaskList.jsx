@@ -7,7 +7,7 @@ function TaskList() {
 
   return (
     <div id="todo-container">
-      {todoContents.map((data) => (
+       {todoContents && todoContents.map((data) => (
         <Task
           key={data.uuid}
           uuid={data.uuid}

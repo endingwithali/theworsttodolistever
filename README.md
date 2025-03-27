@@ -16,7 +16,7 @@ The premise was simple
 Here's the working plan:
 ```
 backend: golang + gin
-frontend: javascript + HTMX
+frontend: javascript + react + vite + tailwind
 DB: POSTGRES
 ```
 ## Month 1 and 2
@@ -40,6 +40,9 @@ To Do
     - [x] update TODO entries and persist to backend 
 
 ## Month 3 
+
+- [ ] integrate error handling of wrong UUIDs or wrong input types for backend endpoint
+
 - [ ] Do basic security checks
 - [ ] Style frontend
 Create login system - still one big list
