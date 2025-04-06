@@ -2,19 +2,39 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import dayjs from "dayjs";
 import { useTaskState } from "../context/ToDoContainer";
-import { MdEdit } from "react-icons/md";
+import { MdEdit, MdCancel } from "react-icons/md";
 import { FaTrash } from "react-icons/fa";
+// import {div} as motion-div from "motion/react-client";
 
 function Task({ uuid, createDate, updateDate, creator, status, text }) {
   const [checkedState, setChecked] = useState(status);
   const [updateDateState, setUpdateDate] = useState(updateDate);
   const [isEditing, setIsEditing] = useState(false);
   const [taskValue, setTaskValue] = useState(text);
+  const [isInfoVisible, setTaskInfoState] = useState(false);
+  const [prevTaskState, setPrevTaskState] = useState(text);
 
   // eslint-disable-next-line no-unused-vars
   const { tasks, dispatchFunction } = useTaskState();
 
+  const handleInfoVisibility = () => {
+    setTaskInfoState(!isInfoVisible);
+    if (isInfoVisible && isEditing) {
+      setIsEditing(false);
+      setTaskValue(prevTaskState);
+    }
+  };
+
+  const handleEdit = () => {
+      setIsEditing(!isEditing);
+      if (isEditing) {
+        setTaskValue(prevTaskState);
+      }
+
+  }
   const handleChange = () => {
+    setIsEditing(false);
+    setTaskValue(prevTaskState);
     fetch("http://127.0.0.1:8080/task/toggle", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -29,9 +49,9 @@ function Task({ uuid, createDate, updateDate, creator, status, text }) {
         console.log(data);
         setChecked(data.taskStatus);
         setUpdateDate(data.updateDate);
-        // setOldTaskValue("")
       })
       .catch((error) => {
+        setChecked(!checkedState);
         console.log(error);
       });
   };
@@ -57,8 +77,10 @@ function Task({ uuid, createDate, updateDate, creator, status, text }) {
         setChecked(data.taskStatus);
         setUpdateDate(data.updateDate);
         setIsEditing(false);
+        setPrevTaskState(data.taskString);
       })
       .catch((error) => {
+        setTaskValue(prevTaskState);
         console.log(error);
       });
   };
@@ -88,43 +110,70 @@ function Task({ uuid, createDate, updateDate, creator, status, text }) {
   //https://developer.mozilla.org/en-US/docs/Web/HTML/Element/details
 
   return (
-    <div className="flex gap-4 p-4">
-      <input
-        className="font-lekton"
-        type="checkbox"
-        checked={checkedState}
-        onChange={handleChange}
-      />
-      <summary className="font-lekton">
-        {!isEditing && <p>{taskValue}</p>}
-        {isEditing && (
-          <form onSubmit={handleUpdate}>
-            <input value={taskValue} onChange={handleTaskOnChange} />
-            <button type="submit">update</button>
-          </form>
-        )}
-      </summary>
-
-      <p className="font-lekton">
-        {dayjs(updateDateState).format("YYYY-MM-DD HH:mm").toString()}
-      </p>
-      <p className="font-lekton">
-        {dayjs(createDate).format("YYYY-MM-DD HH:mm").toString()}
-      </p>
-      <p className="font-lekton">{creator}</p>
-      <button
-        type="edit"
-        onClick={() => {
-          setIsEditing(true);
-        }}
-      >
-        {" "}
-        <MdEdit />{" "}
-      </button>
-      <button type="edit" onClick={handleDelete}>
-        {" "}
-        <FaTrash />{" "}
-      </button>
+    <div className="flex pb-5">
+      <div className="pr-5">
+        <input type="checkbox" checked={checkedState} onChange={handleChange} />
+      </div>
+      <div>
+        <button
+          className="mr-2 flex items-center align-middle"
+          onClick={handleInfoVisibility}
+        >
+          <div className="align-middle"> {isInfoVisible ? "(-)" : "(+)"}</div>
+        </button>
+      </div>
+      <div className="flex flex-col">
+        <div className="font-lekton">
+          {!isEditing && <p className="px-2 py-1">{taskValue}</p>}
+          {isEditing && (
+            <form onSubmit={handleUpdate} className="flex px-2 py-1 outline-2 mr-2 grow">
+              <input
+                className="pr-2 flex-auto"
+                value={taskValue}
+                onChange={handleTaskOnChange}
+              />
+              <button className="text-purple-600 flex-xs" type="submit">
+                UPDATE
+              </button>
+            </form>
+          )}
+        </div>
+        <div>
+          {isInfoVisible ? (
+            <div>
+              <div id="task-info-container">
+                <p className="font-lekton">
+                  Last Updated:{" "}
+                  {dayjs(updateDateState).format("YYYY-MM-DD HH:mm").toString()}
+                </p>
+                <p className="font-lekton">
+                  Date Created:{" "}
+                  {dayjs(createDate).format("YYYY-MM-DD HH:mm").toString()}
+                </p>
+                <p className="font-lekton">Creator: {creator}</p>
+                <div className="flex flex-row gap-3">
+                  <div>
+                    <button
+                      type="edit"
+                      onClick={handleEdit}
+                    >
+                      {" "}
+                      { isEditing ? <MdCancel/> : <MdEdit />}
+                        {" "}
+                    </button>
+                  </div>
+                  <div>
+                    <button type="edit" onClick={handleDelete}>
+                      {" "}
+                      <FaTrash />{" "}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </div>
     </div>
   );
 }

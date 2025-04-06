@@ -22,8 +22,8 @@ function App() {
   return (
     <ToDoContainer>
       <div className="m-20 flex flex-col">
-        <div id="top-container">
-          <h1 className="font-atkinson text-lg">{title}</h1>
+        <div id="top-container" className="pb-3">
+          <h1 className="font-atkinson text-3xl">{title}</h1>
         </div>
         <div id="add-container">
         <Add />

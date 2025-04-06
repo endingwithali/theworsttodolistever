@@ -8,6 +8,9 @@ export function Add() {
 
 
   const handleSubmit = () => {
+    if (taskState===""){
+      return
+    }
     addNewTask(taskState).then( (taskData) => {
       dispatchFunction({
         "type": "ADD", 
@@ -21,10 +24,10 @@ export function Add() {
   }
 
   return (
-    <div className="flex gap-4 p-4">
+    <div className="flex gap-4">
         <form onSubmit={handleSubmit}>
             <input type="text" className="outline-solid" value={taskState} onChange={handleInputChange}/>
-            <button type="submit" >Create</button>
+            <button type="submit" className="pl-2">Create</button>
         </form>
     </div>
   );
